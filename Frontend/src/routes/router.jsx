@@ -109,11 +109,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/posts/:postId",
-    element: (
-      <PublicRoute>
-        <Post />
-      </PublicRoute>
-    ),
+    element: <Post />,
   },
   {
     path: "/products/:productId",

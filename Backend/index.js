@@ -17,7 +17,7 @@ const DATABASE_NAME = process.env.DATABASE_NAME || "thinkspace";
 
 // Ensure uploads directories exist
 const uploadDir = process.env.UPLOAD_DIRECTORY || "uploads";
-['productimage', 'avatar', 'general'].forEach(sub => {
+['productimage', 'avatar', 'general', 'image'].forEach(sub => {
     const dir = path.join(uploadDir, sub);
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });

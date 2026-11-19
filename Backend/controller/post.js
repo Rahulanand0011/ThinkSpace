@@ -540,6 +540,24 @@ const handleVisibility = async (req, res) => {
     }
 };
 
+const uploadPostImage = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ status: false, message: "No image file provided" });
+        }
+        const serverEndpoint = `${req.protocol}://${req.get("host")}/api/image/${req.file.filename}`;
+        return res.status(200).json({
+            status: true,
+            message: "Image uploaded successfully",
+            imageUrl: serverEndpoint,
+            filename: req.file.filename
+        });
+    } catch (error) {
+        console.error("Error uploading post image:", error);
+        return res.status(500).json({ status: false, message: "Failed to upload image" });
+    }
+};
+
 export { 
     addPost, 
     removePost, 
@@ -552,5 +570,6 @@ export {
     deleteComment, 
     editComment, 
     addReaction, 
-    handleVisibility 
+    handleVisibility,
+    uploadPostImage
 };

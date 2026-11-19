@@ -11,10 +11,12 @@ import {
     getSinglePost, 
     handleVisibility, 
     removePost, 
-    toggleLikePost 
+    toggleLikePost,
+    uploadPostImage 
 } from '../controller/post.js';
 import userAuthentication from '../middleware/userAuthentication.js';
 import optionalUserAuth from '../middleware/optionalUserAuth.js';
+import uploadFile from '../middleware/uploadFile.js';
 
 const post = express.Router();
 
@@ -27,6 +29,7 @@ post.get("/:postId", optionalUserAuth, getSinglePost);
 
 // CREATE & EDIT POSTS
 post.post("/", userAuthentication, addPost);
+post.post("/upload-image", userAuthentication, uploadFile.single("image"), uploadPostImage);
 post.patch("/:postId", userAuthentication, editPost);
 post.delete("/:postId", userAuthentication, removePost);
 post.patch("/change-visibility/:postId", userAuthentication, handleVisibility);

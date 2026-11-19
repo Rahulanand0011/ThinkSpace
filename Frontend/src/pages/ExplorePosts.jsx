@@ -49,6 +49,21 @@ const ExplorePosts = () => {
 
   const token = Cookies.get(import.meta.env.VITE_TOKEN_KEY);
 
+  const extractThumb = (desc) => {
+    if (!desc) return null;
+    const match = desc.match(/!\[.*?\]\((https?:\/\/[^\s)]+)\)/);
+    return match ? match[1] : null;
+  };
+
+  const cleanExcerpt = (desc) => {
+    if (!desc) return "";
+    return desc
+      .replace(/!\[.*?\]\(.*?\)/g, "")
+      .replace(/\[(.*?)\]\(.*?\)/g, "$1")
+      .replace(/[#*`_~>]/g, "")
+      .trim();
+  };
+
   const fetchPosts = async () => {
     setLoading(true);
     try {
@@ -267,97 +282,136 @@ const ExplorePosts = () => {
                   }
                 }}
               >
-                <CardContent sx={{ pb: 1 }}>
-                  {/* Author Header */}
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}>
-                    <Avatar
-                      src={post.author?.image ? `${import.meta.env.VITE_SERVER_ENDPOINT}/avatar/${post.author.image}` : undefined}
-                      sx={{
-                        bgcolor: "#1b2e35",
-                        color: "#59e3a7",
-                        width: 44,
-                        height: 44,
-                        fontWeight: "bold"
-                      }}
-                    >
-                      {post.author?.fullName ? post.author.fullName.charAt(0).toUpperCase() : "U"}
-                    </Avatar>
-                    <Box sx={{ flex: 1 }}>
-                      <Link
-                        to={post.author?._id ? `/users/${post.author._id}` : "#"}
-                        style={{ textDecoration: "none", color: "inherit" }}
-                      >
-                        <Typography
-                          variant="subtitle1"
-                          fontWeight="bold"
-                          sx={{
-                            "&:hover": { color: "#1b2e35", textDecoration: "underline" }
-                          }}
-                        >
-                          {post.author?.fullName || "ThinkSpace Member"}
-                        </Typography>
-                      </Link>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, color: "text.secondary" }}>
-                        <AccessTimeIcon sx={{ fontSize: 14 }} />
-                        <Typography variant="caption">
-                          {dayjs(post.createdAt).fromNow()}
-                        </Typography>
+                <CardContent sx={{ pb: 1.5, p: { xs: 2.5, sm: 3 } }}>
+                  {(() => {
+                    const thumb = extractThumb(post.description);
+                    return (
+                      <Box sx={{ display: "flex", flexDirection: { xs: "column-reverse", sm: "row" }, gap: { xs: 2, sm: 3 }, justifyContent: "space-between", alignItems: "flex-start" }}>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          {/* Author Header */}
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}>
+                            <Avatar
+                              src={post.author?.image ? `${import.meta.env.VITE_SERVER_ENDPOINT}/avatar/${post.author.image}` : undefined}
+                              sx={{
+                                bgcolor: "#1b2e35",
+                                color: "#59e3a7",
+                                width: 40,
+                                height: 40,
+                                fontWeight: "bold"
+                              }}
+                            >
+                              {post.author?.fullName ? post.author.fullName.charAt(0).toUpperCase() : "U"}
+                            </Avatar>
+                            <Box sx={{ minWidth: 0 }}>
+                              <Link
+                                to={post.author?._id ? `/users/${post.author._id}` : "#"}
+                                style={{ textDecoration: "none", color: "inherit" }}
+                              >
+                                <Typography
+                                  variant="subtitle2"
+                                  fontWeight={700}
+                                  noWrap
+                                  sx={{
+                                    "&:hover": { color: "#0f766e" }
+                                  }}
+                                >
+                                  {post.author?.fullName || "ThinkSpace Member"}
+                                </Typography>
+                              </Link>
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, color: "text.secondary" }}>
+                                <AccessTimeIcon sx={{ fontSize: 13 }} />
+                                <Typography variant="caption" sx={{ fontSize: "0.72rem" }}>
+                                  {dayjs(post.createdAt).fromNow()}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Box>
+
+                          {/* Post Title */}
+                          <Link
+                            to={`/posts/${post._id}`}
+                            style={{ textDecoration: "none", color: "inherit" }}
+                          >
+                            <Typography
+                              variant="h6"
+                              fontWeight={800}
+                              sx={{
+                                mb: 1,
+                                color: "#0f172a",
+                                lineHeight: 1.35,
+                                fontSize: { xs: "1.1rem", sm: "1.25rem" },
+                                "&:hover": { color: "#0f766e" }
+                              }}
+                            >
+                              {post.title}
+                            </Typography>
+                          </Link>
+
+                          {/* Post Excerpt */}
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{
+                              mb: 2,
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                              lineHeight: 1.7,
+                              color: "#475569"
+                            }}
+                          >
+                            {cleanExcerpt(post.description)}
+                          </Typography>
+
+                          {/* Tags */}
+                          {post.tags && post.tags.length > 0 && (
+                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
+                              {post.tags.map((tag, idx) => (
+                                <Chip
+                                  key={idx}
+                                  label={tag.startsWith("#") ? tag : `#${tag}`}
+                                  size="small"
+                                  sx={{
+                                    backgroundColor: "#f1f5f9",
+                                    color: "#334155",
+                                    fontWeight: 600,
+                                    fontSize: "0.72rem",
+                                    borderRadius: "6px"
+                                  }}
+                                />
+                              ))}
+                            </Box>
+                          )}
+                        </Box>
+
+                        {/* Thumbnail Image */}
+                        {thumb && (
+                          <Box
+                            component={Link}
+                            to={`/posts/${post._id}`}
+                            sx={{
+                              width: { xs: "100%", sm: 160, md: 180 },
+                              height: { xs: 180, sm: 120 },
+                              flexShrink: 0,
+                              borderRadius: "12px",
+                              overflow: "hidden",
+                              display: "block",
+                              boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+                              "&:hover img": { transform: "scale(1.06)" }
+                            }}
+                          >
+                            <img
+                              src={thumb}
+                              alt={post.title}
+                              style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.3s ease" }}
+                              onError={(e) => { e.target.parentElement.style.display = "none"; }}
+                            />
+                          </Box>
+                        )}
                       </Box>
-                    </Box>
-                  </Box>
-
-                  {/* Post Title */}
-                  <Link
-                    to={`/posts/${post._id}`}
-                    style={{ textDecoration: "none", color: "inherit" }}
-                  >
-                    <Typography
-                      variant="h5"
-                      fontWeight="bold"
-                      sx={{
-                        mb: 1,
-                        color: "#1b2e35",
-                        "&:hover": { color: "#2563eb" }
-                      }}
-                    >
-                      {post.title}
-                    </Typography>
-                  </Link>
-
-                  {/* Post Excerpt */}
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      mb: 2,
-                      display: "-webkit-box",
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                      lineHeight: 1.6
-                    }}
-                  >
-                    {post.description.replace(/[#*`_]/g, "")}
-                  </Typography>
-
-                  {/* Tags */}
-                  {post.tags && post.tags.length > 0 && (
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.8, mb: 1 }}>
-                      {post.tags.map((tag, idx) => (
-                        <Chip
-                          key={idx}
-                          label={tag.startsWith("#") ? tag : `#${tag}`}
-                          size="small"
-                          sx={{
-                            backgroundColor: "#e2e8f0",
-                            color: "#334155",
-                            fontWeight: 500,
-                            fontSize: "0.75rem"
-                          }}
-                        />
-                      ))}
-                    </Box>
-                  )}
+                    );
+                  })()}
                 </CardContent>
 
                 {/* Card Actions: Likes, Comments, View Post */}
