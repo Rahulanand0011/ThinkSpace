@@ -24,21 +24,12 @@ const uploadDir = process.env.UPLOAD_DIRECTORY || "uploads";
     }
 });
 
-const allowedOrigins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    process.env.CLIENT_URL,
-].filter(Boolean);
-
 app.use(
     cors({
-        origin: function (origin, callback) {
-            if (!origin || allowedOrigins.includes(origin) || allowedOrigins.some(o => origin.startsWith(o))) {
-                callback(null, true);
-            } else {
-                callback(null, true); // Allow all for seamless deployment
-            }
-        },
+        origin: [
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+        ],
         credentials: true,
     })
 );
