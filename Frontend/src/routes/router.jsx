@@ -117,19 +117,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/products/:productId",
-    element: (
-      <PublicRoute>
-        <Product />
-      </PublicRoute>
-    ),
+    element: <Product />,
   },
   {
     path: "/subscription",
-    element: (
-      <PublicRoute>
-        <Subscription />
-      </PublicRoute>
-    ),
+    element: <Subscription />,
   },
   {
     path: "/dashboard",
